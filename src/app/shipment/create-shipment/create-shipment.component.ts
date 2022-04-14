@@ -1,22 +1,22 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { combineLatest, combineLatestAll, concat, from, map, mergeMap, Observable, of } from 'rxjs';
+import { combineLatest, map, Observable, of, Subject, takeUntil } from 'rxjs';
 import { PackagesDTO } from '../packagesDTO';
 import { Shipment } from '../shipment';
 
 @Component({
   selector: 'app-root',
   templateUrl: './create-shipment.component.html',
-  styleUrls: ['./create-shipment.component.scss']
+  styleUrls: ['./create-shipment.component.scss'],
 })
-export class CreateShipmentComponent implements OnInit {
+export class CreateShipmentComponent implements OnInit, OnDestroy {
 
   createShipmentForm: FormGroup;
   currencies: Array<String> = ['EUR', 'USD', 'GBP'];
   totalWeight$: Observable<number> = of(0);
   totalValue$: Observable<number> = of(0);
   totalPackages$: Observable<number> = of(0);
-
+  destroy$: Subject<void> = new Subject<void>();
   packages: Array<Shipment> = [];
 
   constructor(private fb: FormBuilder) { }
@@ -30,6 +30,11 @@ export class CreateShipmentComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   addPackage() {
     if(this.packages.length >= 5) return;
     const newPackage =  this.createShipmentForm.value as Shipment;
@@ -39,6 +44,7 @@ export class CreateShipmentComponent implements OnInit {
 
   private handleTotals(newPackage: Shipment, packages: Shipment[]): void {
     combineLatest([this.totalWeight$, this.totalValue$]).pipe(
+      takeUntil(this.destroy$),
       map(([totalWeight, totalValue]) => {
 
           const packagesTotal = packages.length;

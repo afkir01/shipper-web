@@ -7,6 +7,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { ShipmentModule } from './shipment/shipment.module';
+import { GraphQLModule } from './graphql.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,6 +20,8 @@ import { ShipmentModule } from './shipment/shipment.module';
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
+    GraphQLModule,
+    HttpClientModule,
 ],
   providers: [],
   bootstrap: [AppComponent]
